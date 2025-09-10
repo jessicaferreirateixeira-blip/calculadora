@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora Simples</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+    <div class="container">
+        <h1>Calculadora Simples</h1>
+
+        <label for="num1">Número 1:</label>
+        <input type="number" id="num1">
+
+        <label for="operacao">Operação:</label>
+        <select id="operacao">
+            <option value="soma">Soma</option>
+            <option value="subtracao">Subtração</option>
+            <option value="multiplicacao">Multiplicação</option>
+            <option value="divisao">Divisão</option>
+        </select>
+
+        <label for="num2">Número 2:</label>
+        <input type="number" id="num2">
+        
+        <button onclick="realizarCalculo()">Calcular</button>
+
+        <h3>Resultado:</h3>
+        <p id="resultado"></p>
+    </div>
+
+    <script>
+        // Funções de cálculo
+        function adicao(a, b) {
+            return a + b;
+        }
+
+        function subtracao(a, b) {
+            return a - b;
+        }
+
+        function multiplicacao(a, b) {
+            return a * b;
+        }
+
+        function divisao(a, b) {
+            if (b !== 0) {
+                return a / b;
+            } else {
+                return "Erro: divisão por zero.";
+            }
+        }
+
+        function calculadora(operacao, a, b) {
+            switch (operacao) {
+                case 'soma':
+                    return adicao(a, b);
+                case 'subtracao':
+                    return subtracao(a, b);
+                case 'multiplicacao':
+                    return multiplicacao(a, b);
+                case 'divisao':
+                    return divisao(a, b);
+                default:
+                    return "Operação inválida.";
+            }
+        }
+
+        // Função que pega os valores do HTML e exibe o resultado
+        function realizarCalculo() {
+            let num1 = parseFloat(document.getElementById('num1').value);
+            let num2 = parseFloat(document.getElementById('num2').value);
+            let operacao = document.getElementById('operacao').value;
+
+            if (isNaN(num1) || isNaN(num2)) {
+                document.getElementById('resultado').textContent = "Por favor, insira números válidos.";
+                return;
+            }
+            
+            let resultado = calculadora(operacao, num1, num2);
+            document.getElementById('resultado').textContent = resultado;
+        }
+    </script>
+
+</body>
+</html>
