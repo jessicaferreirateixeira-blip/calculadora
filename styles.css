@@ -7,6 +7,7 @@ body {
     background-color: #f0f0f0;
     margin: 0;
 }
+
 .container {
     background-color: #fff;
     padding: 20px 40px;
@@ -14,9 +15,11 @@ body {
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     text-align: center;
 }
+
 h1 {
     color: #333;
 }
+
 input, select, button {
     width: 100%;
     padding: 10px;
@@ -25,6 +28,7 @@ input, select, button {
     border: 1px solid #ccc;
     box-sizing: border-box;
 }
+
 button {
     background-color: #007BFF;
     color: #fff;
@@ -32,9 +36,11 @@ button {
     cursor: pointer;
     font-size: 16px;
 }
+
 button:hover {
     background-color: #0056b3;
 }
+
 #resultado {
     margin-top: 20px;
     font-size: 24px;
