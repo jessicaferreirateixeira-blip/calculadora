@@ -123,9 +123,12 @@ function realizarCalculo() {
             break;
     }
 
-    resultadoElement.textContent = resultado.toFixed(2);
+    // Verifica se o resultado é zero para formatar corretamente
+    const resultadoFormatado = (resultado === 0) ? "0" : resultado.toFixed(2);
+
+    resultadoElement.textContent = resultadoFormatado;
     statusElement.textContent = "Cálculo realizado!";
-    atualizarHistorico(calculo, resultado.toFixed(2));
+    atualizarHistorico(calculo, resultadoFormatado);
     explicacaoElement.textContent = "";
 }
 
