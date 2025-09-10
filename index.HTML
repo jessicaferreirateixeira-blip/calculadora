@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Calculadora Simples</title>
+    <title>Calculadora Completa</title>
+    <!-- Referência ao arquivo de estilos -->
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -31,58 +32,7 @@
         <p id="resultado"></p>
     </div>
 
-    <script>
-        // Funções de cálculo
-        function adicao(a, b) {
-            return a + b;
-        }
-
-        function subtracao(a, b) {
-            return a - b;
-        }
-
-        function multiplicacao(a, b) {
-            return a * b;
-        }
-
-        function divisao(a, b) {
-            if (b !== 0) {
-                return a / b;
-            } else {
-                return "Erro: divisão por zero.";
-            }
-        }
-
-        function calculadora(operacao, a, b) {
-            switch (operacao) {
-                case 'soma':
-                    return adicao(a, b);
-                case 'subtracao':
-                    return subtracao(a, b);
-                case 'multiplicacao':
-                    return multiplicacao(a, b);
-                case 'divisao':
-                    return divisao(a, b);
-                default:
-                    return "Operação inválida.";
-            }
-        }
-
-        // Função que pega os valores do HTML e exibe o resultado
-        function realizarCalculo() {
-            let num1 = parseFloat(document.getElementById('num1').value);
-            let num2 = parseFloat(document.getElementById('num2').value);
-            let operacao = document.getElementById('operacao').value;
-
-            if (isNaN(num1) || isNaN(num2)) {
-                document.getElementById('resultado').textContent = "Por favor, insira números válidos.";
-                return;
-            }
-            
-            let resultado = calculadora(operacao, num1, num2);
-            document.getElementById('resultado').textContent = resultado;
-        }
-    </script>
-
+    <!-- Referência ao arquivo de script -->
+    <script src="app.js"></script>
 </body>
 </html>
