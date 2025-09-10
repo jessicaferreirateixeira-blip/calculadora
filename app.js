@@ -1,77 +1,203 @@
-// Funções para operações matemáticas básicas
-function adicao(a, b) {
-    return a + b;
-}
+// Configurações da API do Gemini
+const API_KEY = ""; 
+const API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=" + API_KEY;
 
-function subtracao(a, b) {
-    return a - b;
-}
+// Elementos do DOM
+const num1Input = document.getElementById('num1');
+const num2Input = document.getElementById('num2');
+const operacaoSelect = document.getElementById('operacao');
+const resultadoElement = document.getElementById('valor-resultado');
+const statusElement = document.getElementById('status-resultado');
+const historicoElement = document.getElementById('historico');
+const explicacaoElement = document.getElementById('explicacao');
+const explicarButton = document.querySelector('button[onclick="explicarCalculo()"]');
 
-function multiplicacao(a, b) {
-    return a * b;
-}
+let historico = [];
 
-function divisao(a, b) {
-    // Verifica se o divisor (b) é zero para evitar erro.
-    if (b === 0) {
-        return "Erro: divisão por zero.";
+// Funções para conversão de Base64 para ArrayBuffer e criação de WAV
+function base64ToArrayBuffer(base64) {
+    const binary_string = window.atob(base64);
+    const len = binary_string.length;
+    const bytes = new Uint8Array(len);
+    for (let i = 0; i < len; i++) {
+        bytes[i] = binary_string.charCodeAt(i);
     }
-    return a / b;
+    return bytes.buffer;
 }
 
-function calculadora(operacao, a, b) {
-    // Verifica se os parâmetros de entrada são números válidos
-    if (typeof a !== 'number' || typeof b !== 'number' || isNaN(a) || isNaN(b)) {
-        return "Erro: Parâmetros inválidos. Insira apenas números.";
+function pcmToWav(pcmData, sampleRate) {
+    const dataView = new DataView(new ArrayBuffer(44 + pcmData.byteLength));
+    let offset = 0;
+
+    // RIFF identifier
+    dataView.setUint8(offset, 'R'.charCodeAt(0)); offset++;
+    dataView.setUint8(offset, 'I'.charCodeAt(0)); offset++;
+    dataView.setUint8(offset, 'F'.charCodeAt(0)); offset++;
+    dataView.setUint8(offset, 'F'.charCodeAt(0)); offset++;
+    // file length (36 + data length)
+    dataView.setUint32(offset, 36 + pcmData.byteLength, true); offset += 4;
+    // 'WAVE' identifier
+    dataView.setUint8(offset, 'W'.charCodeAt(0)); offset++;
+    dataView.setUint8(offset, 'A'.charCodeAt(0)); offset++;
+    dataView.setUint8(offset, 'V'.charCodeAt(0)); offset++;
+    dataView.setUint8(offset, 'E'.charCodeAt(0)); offset++;
+    // 'fmt ' chunk
+    dataView.setUint8(offset, 'f'.charCodeAt(0)); offset++;
+    dataView.setUint8(offset, 'm'.charCodeAt(0)); offset++;
+    dataView.setUint8(offset, 't'.charCodeAt(0)); offset++;
+    dataView.setUint8(offset, ' '.charCodeAt(0)); offset++;
+    // chunk length (16 for PCM)
+    dataView.setUint32(offset, 16, true); offset += 4;
+    // audio format (1 for PCM)
+    dataView.setUint16(offset, 1, true); offset += 2;
+    // number of channels (1)
+    dataView.setUint16(offset, 1, true); offset += 2;
+    // sample rate
+    dataView.setUint32(offset, sampleRate, true); offset += 4;
+    // byte rate (sample rate * num channels * bytes per sample)
+    dataView.setUint32(offset, sampleRate * 1 * 2, true); offset += 4;
+    // block align (num channels * bytes per sample)
+    dataView.setUint16(offset, 1 * 2, true); offset += 2;
+    // bits per sample
+    dataView.setUint16(offset, 16, true); offset += 2;
+    // 'data' chunk
+    dataView.setUint8(offset, 'd'.charCodeAt(0)); offset++;
+    dataView.setUint8(offset, 'a'.charCodeAt(0)); offset++;
+    dataView.setUint8(offset, 't'.charCodeAt(0)); offset++;
+    dataView.setUint8(offset, 'a'.charCodeAt(0)); offset++;
+    // data length
+    dataView.setUint32(offset, pcmData.byteLength, true); offset += 4;
+    
+    const pcm16 = new Int16Array(pcmData);
+    for (let i = 0; i < pcm16.length; i++) {
+        dataView.setInt16(offset, pcm16[i], true);
+        offset += 2;
+    }
+
+    return new Blob([dataView], { type: 'audio/wav' });
+}
+
+function atualizarHistorico(calculo, resultado) {
+    const historicoItem = document.createElement('div');
+    historicoItem.className = 'bg-white p-2 rounded-lg shadow text-slate-700';
+    historicoItem.innerHTML = `<span class="font-bold">${calculo} =</span> <span class="font-semibold text-indigo-600">${resultado}</span>`;
+    historicoElement.prepend(historicoItem);
+}
+
+function realizarCalculo() {
+    const num1 = parseFloat(num1Input.value);
+    const num2 = parseFloat(num2Input.value);
+    const operacao = operacaoSelect.value;
+    let resultado;
+    let calculo;
+
+    if (isNaN(num1) || isNaN(num2)) {
+        resultadoElement.textContent = "Erro";
+        statusElement.textContent = "Por favor, insira números válidos.";
+        explicacaoElement.textContent = "";
+        return;
     }
 
     switch (operacao) {
         case 'soma':
-            return adicao(a, b);
+            resultado = num1 + num2;
+            calculo = `${num1} + ${num2}`;
+            break;
         case 'subtracao':
-            return subtracao(a, b);
+            resultado = num1 - num2;
+            calculo = `${num1} - ${num2}`;
+            break;
         case 'multiplicacao':
-            return multiplicacao(a, b);
+            resultado = num1 * num2;
+            calculo = `${num1} * ${num2}`;
+            break;
         case 'divisao':
-            return divisao(a, b);
-        default:
-            return "Operação inválida.";
+            if (num2 === 0) {
+                resultadoElement.textContent = "Erro";
+                statusElement.textContent = "Não é possível dividir por zero.";
+                explicacaoElement.textContent = "";
+                return;
+            }
+            resultado = num1 / num2;
+            calculo = `${num1} / ${num2}`;
+            break;
     }
+
+    resultadoElement.textContent = resultado.toFixed(2);
+    statusElement.textContent = "Cálculo realizado!";
+    atualizarHistorico(calculo, resultado.toFixed(2));
+    explicacaoElement.textContent = "";
 }
 
-function verificarParOuImpar(numero) {
-    // Verifica se a entrada é um número antes de fazer a operação
-    if (typeof numero !== 'number' || isNaN(numero)) {
-        return "Não é um número.";
-    }
+async function explicarCalculo() {
+    const num1 = parseFloat(num1Input.value);
+    const num2 = parseFloat(num2Input.value);
+    const operacao = operacaoSelect.value;
+    let operacaoTexto;
     
-    if (numero % 2 === 0) {
-        return "Par";
-    } else {
-        return "Ímpar";
+    // Obter o texto da operação para o prompt
+    switch (operacao) {
+        case 'soma':
+            operacaoTexto = 'adição';
+            break;
+        case 'subtracao':
+            operacaoTexto = 'subtração';
+            break;
+        case 'multiplicacao':
+            operacaoTexto = 'multiplicação';
+            break;
+        case 'divisao':
+            operacaoTexto = 'divisão';
+            break;
     }
-}
-
-// Função que pega os valores do HTML e exibe o resultado
-function realizarCalculo() {
-    let num1 = parseFloat(document.getElementById('num1').value);
-    let num2 = parseFloat(document.getElementById('num2').value);
-    let operacao = document.getElementById('operacao').value;
 
     if (isNaN(num1) || isNaN(num2)) {
-        document.getElementById('resultado').textContent = "Por favor, insira números válidos.";
+        explicacaoElement.textContent = "Por favor, insira números válidos para a explicação.";
         return;
     }
-    
-    let resultado = calculadora(operacao, num1, num2);
-    let status = verificarParOuImpar(resultado);
 
-    const elementoResultado = document.getElementById('resultado');
-    if (elementoResultado) {
-        // Combina o resultado e o status para exibir
-        const textoCompleto = `${resultado} (${status})`;
-        elementoResultado.textContent = textoCompleto;
-    } else {
-        console.error("Erro: Elemento com ID 'resultado' não encontrado no HTML.");
+    explicarButton.disabled = true;
+    explicacaoElement.textContent = "A pensar numa explicação...";
+
+    try {
+        const prompt = `Explique o seguinte cálculo matemático de forma simples para uma criança de 10 anos: ${num1} ${operacaoTexto} ${num2}. Não inclua a resposta final no texto.`;
+
+        const payload = {
+            contents: [{ parts: [{ text: prompt }] }],
+            systemInstruction: {
+                parts: [{ text: "Atua como um professor de matemática amigável e simpático que explica conceitos de forma fácil de entender." }]
+            },
+        };
+
+        const response = await fetch(API_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+
+        if (!response.ok) {
+            throw new Error(`Erro de HTTP! status: ${response.status}`);
+        }
+
+        const result = await response.json();
+        const generatedText = result?.candidates?.[0]?.content?.parts?.[0]?.text || "Não foi possível gerar uma explicação. Tente novamente.";
+        
+        explicacaoElement.textContent = generatedText;
+
+    } catch (error) {
+        console.error("Erro ao chamar a API:", error);
+        explicacaoElement.textContent = "Ocorreu um erro ao obter a explicação. Tente novamente.";
+    } finally {
+        explicarButton.disabled = false;
     }
+}
+
+function limparTudo() {
+    num1Input.value = '';
+    num2Input.value = '';
+    operacaoSelect.value = 'soma';
+    resultadoElement.textContent = '0';
+    statusElement.textContent = '';
+    historicoElement.innerHTML = '';
+    explicacaoElement.textContent = '';
 }

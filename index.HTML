@@ -3,36 +3,60 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Calculadora Completa</title>
-    <!-- Referência ao arquivo de estilos -->
-    <link rel="stylesheet" href="styles.css">
+    <title>Calculadora Colorida</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="app.js" defer></script>
 </head>
-<body>
+<body class="bg-indigo-100 flex items-center justify-center min-h-screen font-sans">
 
-    <div class="container">
-        <h1>Calculadora Simples</h1>
+    <div class="bg-white p-10 rounded-3xl shadow-2xl max-w-sm w-full space-y-6 transform transition-all duration-300 hover:scale-105">
+        <h1 class="text-4xl font-black text-center text-purple-700 whitespace-nowrap">✨ Calculadora ✨</h1>
 
-        <label for="num1">Número 1:</label>
-        <input type="number" id="num1">
+        <div class="space-y-4">
+            <div>
+                <label for="num1" class="block text-slate-700 font-semibold mb-1 text-lg">Número 1️⃣:</label>
+                <input type="number" id="num1" class="w-full p-3 border-2 border-purple-300 rounded-xl focus:ring-4 focus:ring-purple-400 transition-all duration-200" placeholder="Digite um número">
+            </div>
+            
+            <div>
+                <label for="operacao" class="block text-slate-700 font-semibold mb-1 text-lg">Operação ➗:</label>
+                <select id="operacao" class="w-full p-3 border-2 border-purple-300 rounded-xl appearance-none bg-white focus:ring-4 focus:ring-purple-400 transition-all duration-200">
+                    <option value="soma">+</option>
+                    <option value="subtracao">-</option>
+                    <option value="multiplicacao">*</option>
+                    <option value="divisao">/</option>
+                </select>
+            </div>
+            
+            <div>
+                <label for="num2" class="block text-slate-700 font-semibold mb-1 text-lg">Número 2️⃣:</label>
+                <input type="number" id="num2" class="w-full p-3 border-2 border-purple-300 rounded-xl focus:ring-4 focus:ring-purple-400 transition-all duration-200" placeholder="Digite um número">
+            </div>
+        </div>
 
-        <label for="operacao">Operação:</label>
-        <select id="operacao">
-            <option value="soma">Soma</option>
-            <option value="subtracao">Subtração</option>
-            <option value="multiplicacao">Multiplicação</option>
-            <option value="divisao">Divisão</option>
-        </select>
+        <div class="flex space-x-4">
+            <button onclick="realizarCalculo()" class="flex-1 bg-indigo-600 text-white font-bold py-3 rounded-lg shadow-md hover:bg-indigo-700 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 active:bg-indigo-800">
+                Calcular 🚀
+            </button>
+            <button onclick="limparTudo()" class="flex-1 bg-orange-500 text-white font-bold py-3 rounded-lg shadow-md hover:bg-orange-600 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-orange-400 focus:ring-offset-2 active:bg-orange-700">
+                Limpar 🧹
+            </button>
+        </div>
 
-        <label for="num2">Número 2:</label>
-        <input type="number" id="num2">
-        
-        <button onclick="realizarCalculo()">Calcular</button>
+        <div id="resultado" class="text-center mt-6">
+            <p class="text-5xl font-extrabold text-indigo-700">
+                <span id="valor-resultado">0</span>
+                <span id="status-resultado" class="text-base font-normal text-slate-500 block mt-1"></span>
+            </p>
+        </div>
 
-        <h3>Resultado:</h3>
-        <p id="resultado"></p>
+        <div class="mt-8">
+            <h2 class="text-2xl font-bold text-slate-800 text-center">📜 Histórico</h2>
+            <div id="historico" class="mt-4 space-y-3 max-h-40 overflow-y-auto bg-slate-100 p-3 rounded-xl">
+                <!-- Histórico será adicionado aqui -->
+            </div>
+        </div>
     </div>
 
-    <!-- Referência ao arquivo de script -->
-    <script src="app.js"></script>
 </body>
 </html>
